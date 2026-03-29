@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node (테스트 도구 사용 시)
+node_modules/
+npm-debug.log*
+
+# 빌드 산출물
+dist/
+build/
+*.zip
+
+# 에디터
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 환경 변수
+.env
+.env.local
