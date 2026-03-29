@@ -1,0 +1,79 @@
+#!/bin/sh
+
+echo "🔍 Running pre-commit checks..."
+FAILED=0
+
+# ── Step 1: ESLint ─────────────────────────────────────────────
+echo ""
+echo "📋 Step 1/3: ESLint"
+
+JS_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep "\.js$" | grep -v "node_modules")
+
+if [ -z "$JS_FILES" ]; then
+  echo "   ⏭  No staged .js files — skipping lint"
+else
+  npx eslint $JS_FILES --max-warnings=0
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ ESLint failed. Commit aborted."
+    echo "   ▸ Fix all lint errors before committing."
+    echo "   ▸ NEVER use eslint-disable or --no-verify to bypass this check."
+    FAILED=1
+  else
+    echo "✅ ESLint passed"
+  fi
+fi
+
+# ── Step 2: Unit Tests ─────────────────────────────────────────
+echo ""
+echo "🧪 Step 2/3: Unit Tests"
+
+TEST_FILES=$(find . -name "*.test.js" -not -path "./node_modules/*" 2>/dev/null)
+
+if [ -z "$TEST_FILES" ]; then
+  echo "   ⏭  No test files found — skipping (tests required before any core logic commit)"
+else
+  npx vitest run --reporter=verbose 2>&1
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Tests failed. Commit aborted."
+    echo "   ▸ All tests must pass before committing."
+    echo "   ▸ Do NOT skip or mark tests as pending to bypass this check."
+    FAILED=1
+  else
+    echo "✅ Tests passed"
+  fi
+fi
+
+# ── Step 3: Build ──────────────────────────────────────────────
+echo ""
+echo "🏗  Step 3/3: Build"
+
+if [ ! -f "manifest.json" ]; then
+  echo "   ⏭  manifest.json not found — skipping build"
+else
+  node scripts/build.js 2>&1
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Build failed. Commit aborted."
+    FAILED=1
+  else
+    echo "✅ Build passed"
+  fi
+fi
+
+# ── Result ─────────────────────────────────────────────────────
+echo ""
+if [ $FAILED -eq 1 ]; then
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ Pre-commit checks FAILED. Commit aborted."
+  echo "   Fix all issues above and try again."
+  echo "   DO NOT use --no-verify to bypass these checks."
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 1
+fi
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ All pre-commit checks passed. Proceeding with commit."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+exit 0

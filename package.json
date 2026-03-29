@@ -1,0 +1,33 @@
+{
+  "name": "auto-flow-extension",
+  "version": "1.0.0",
+  "description": "Google Flow image prompt automation Chrome Extension",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "build": "node scripts/build.js",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "husky": "^9.0.0",
+    "jsdom": "^24.0.0",
+    "lint-staged": "^15.0.0",
+    "vitest": "^2.0.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --max-warnings=0"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
