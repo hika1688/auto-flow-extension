@@ -7,6 +7,7 @@ export default [
       'dist/**',
       'dist-test/**',
       '*.zip',
+      '.husky/**',
     ],
   },
   {
